@@ -1,0 +1,33 @@
+{
+  "name": "kuro-qr",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "npm run encrypt-data && next build",
+    "encrypt-data": "tsx scripts/encrypt-data.ts",
+    "generate-qr": "tsx scripts/generate-qr-codes.ts",
+    "generate-hash": "tsx scripts/generate-hash.ts",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "next": "16.0.6",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "dotenv": "^17.2.3",
+    "eslint": "^9",
+    "eslint-config-next": "16.0.6",
+    "qrcode": "^1.5.4",
+    "tailwindcss": "^4",
+    "tsx": "^4.21.0",
+    "typescript": "^5"
+  }
+}

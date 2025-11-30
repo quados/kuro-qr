@@ -1,0 +1,12 @@
+[
+  {
+    "hash": "user1-unique-hash",
+    "name": "User One",
+    "urls": ["https://example.com", "https://github.com"]
+  },
+  {
+    "hash": "user2-unique-hash",
+    "name": "User Two",
+    "urls": ["https://twitter.com", "https://reddit.com"]
+  }
+]
