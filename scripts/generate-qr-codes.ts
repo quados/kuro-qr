@@ -1,7 +1,7 @@
 import dotenv from "dotenv"
 import fs from "fs"
 import path from "path"
-import QRCode from "qrcode"
+import qr from "qr-image"
 
 // Load environment variables
 dotenv.config({ path: ".env.local" })
@@ -37,15 +37,28 @@ async function generateQRCodes() {
     // Generate QR code for each user
     for (const user of users) {
       const url = `${BASE_URL}/${user.hash}`
-      const filename = `${user.hash}_${user.name.replace(/\s+/g, "_")}.png`
+      const filename = `${user.hash}_${user.name.replace(/\s+/g, "_")}.svg`
       const outputPath = path.join(qrDir, filename)
 
-      await QRCode.toFile(outputPath, url, {
-        errorCorrectionLevel: "M",
-        type: "png",
-        width: 512,
-        margin: 2
-      })
+      // Generate QR code as SVG using qr-image (better for CAD software)
+      let svgContent = qr
+        .imageSync(url, {
+          type: "svg",
+          ec_level: "M",
+          margin: 2
+        })
+        .toString()
+
+      // Remove white background and only keep black rectangles for 3D printing
+      // Remove the white background rectangle
+      svgContent = svgContent.replace(/<rect[^>]*fill="white"[^>]*\/>/g, "")
+      svgContent = svgContent.replace(/<rect[^>]*fill="#fff"[^>]*\/>/g, "")
+      svgContent = svgContent.replace(/<rect[^>]*fill="#ffffff"[^>]*\/>/g, "")
+
+      // Ensure black rectangles are properly defined
+      svgContent = svgContent.replace(/fill="black"/g, 'fill="#000000"')
+
+      fs.writeFileSync(outputPath, svgContent)
 
       console.log(`✅ Generated QR code for ${user.name}`)
       console.log(`   Hash: ${user.hash}`)
