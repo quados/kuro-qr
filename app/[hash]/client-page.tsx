@@ -35,17 +35,20 @@ export default function HashPage() {
         // Fetch encrypted data
         const response = await fetch('/data.enc');
         if (!response.ok) {
-          throw new Error('Failed to load data');
+          throw new Error(`Failed to load data: ${response.status} ${response.statusText}`);
         }
         
         const encryptedData = await response.text();
         
-        // Decrypt data (using a hardcoded key for client-side - embedded during build)
-        // In production, this would be replaced during the build process
-        const decryptedData = simpleDecrypt(
-          encryptedData,
-          process.env.NEXT_PUBLIC_CLIENT_KEY || 'default-client-key'
-        );
+        // Get the decryption key from environment variable
+        const clientKey = process.env.NEXT_PUBLIC_CLIENT_KEY;
+        
+        if (!clientKey) {
+          throw new Error('NEXT_PUBLIC_CLIENT_KEY not found. Please check your build configuration.');
+        }
+        
+        // Decrypt data
+        const decryptedData = simpleDecrypt(encryptedData, clientKey);
         
         const users: UserData[] = JSON.parse(decryptedData);
         
@@ -62,14 +65,22 @@ export default function HashPage() {
           return;
         }
         
+        // Filter out empty URLs
+        const validUrls = user.urls.filter(url => url && url.trim() !== '');
+        
+        if (validUrls.length === 0) {
+          setError('No valid URLs configured for this user');
+          return;
+        }
+        
         // Select random URL
-        const randomUrl = user.urls[Math.floor(Math.random() * user.urls.length)];
+        const randomUrl = validUrls[Math.floor(Math.random() * validUrls.length)];
         
         // Redirect
         window.location.href = randomUrl;
       } catch (err) {
         console.error('Redirect error:', err);
-        setError('Failed to process redirect');
+        setError(`Failed to process redirect: ${err instanceof Error ? err.message : String(err)}`);
       }
     }
 

@@ -7,7 +7,10 @@ const nextConfig: NextConfig = {
   },
   // For static export with dynamic routes, we need to handle fallback behavior
   // The dynamic routes will work via client-side routing
-  trailingSlash: true
+  trailingSlash: true,
+  env: {
+    NEXT_PUBLIC_CLIENT_KEY: process.env.NEXT_PUBLIC_CLIENT_KEY || ""
+  }
 }
 
 export default nextConfig
