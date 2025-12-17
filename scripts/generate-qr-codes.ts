@@ -36,7 +36,7 @@ async function generateQRCodes() {
 
     // Generate QR code for each user
     for (const user of users) {
-      const url = `${BASE_URL}/${user.hash}`
+      const url = `${BASE_URL}/${user.hash}/`
       const filename = `${user.hash}_${user.name.replace(/\s+/g, "_")}.svg`
       const outputPath = path.join(qrDir, filename)
 
