@@ -1,93 +1,99 @@
-'use client';
+"use client"
 
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams } from "next/navigation"
+import { useEffect, useState } from "react"
 
 // Simple XOR-based decryption for client-side (basic obfuscation)
 function simpleDecrypt(encryptedBase64: string, key: string): string {
-  const encrypted = atob(encryptedBase64);
-  const keyBytes = new TextEncoder().encode(key);
-  let result = '';
-  
+  const encrypted = atob(encryptedBase64)
+  const keyBytes = new TextEncoder().encode(key)
+  let result = ""
+
   for (let i = 0; i < encrypted.length; i++) {
-    result += String.fromCharCode(
-      encrypted.charCodeAt(i) ^ keyBytes[i % keyBytes.length]
-    );
+    result += String.fromCharCode(encrypted.charCodeAt(i) ^ keyBytes[i % keyBytes.length])
   }
-  
-  return result;
+
+  return result
 }
 
 interface UserData {
-  hash: string;
-  name: string;
-  urls: string[];
+  hash: string
+  name: string
+  urls: string[]
 }
 
 export default function HashPage() {
-  const params = useParams();
-  const [error, setError] = useState<string | null>(null);
-  const hash = params?.hash as string;
+  const params = useParams()
+  const [error, setError] = useState<string | null>(null)
+  const hash = params?.hash as string
 
   useEffect(() => {
     async function redirect() {
       try {
         // Fetch encrypted data
-        const response = await fetch('/data.enc');
+        const response = await fetch("/data.enc")
         if (!response.ok) {
-          throw new Error(`Failed to load data: ${response.status} ${response.statusText}`);
+          throw new Error(
+            `Failed to load data: ${response.status} ${response.statusText}`
+          )
         }
-        
-        const encryptedData = await response.text();
-        
+
+        const encryptedData = await response.text()
+
         // Get the decryption key from environment variable
-        const clientKey = process.env.NEXT_PUBLIC_CLIENT_KEY;
-        
+        const clientKey = process.env.NEXT_PUBLIC_CLIENT_KEY
+
         if (!clientKey) {
-          throw new Error('NEXT_PUBLIC_CLIENT_KEY not found. Please check your build configuration.');
+          throw new Error(
+            "NEXT_PUBLIC_CLIENT_KEY not found. Please check your build configuration."
+          )
         }
-        
+
         // Decrypt data
-        const decryptedData = simpleDecrypt(encryptedData, clientKey);
-        
-        const users: UserData[] = JSON.parse(decryptedData);
-        
+        const decryptedData = simpleDecrypt(encryptedData, clientKey)
+
+        const users: UserData[] = JSON.parse(decryptedData)
+
         // Find user by hash
-        const user = users.find((u) => u.hash === hash);
-        
+        const user = users.find((u) => u.hash === hash)
+
         if (!user) {
-          setError('User not found');
-          return;
+          setError("User not found")
+          return
         }
-        
+
         if (user.urls.length === 0) {
-          setError('No URLs configured for this user');
-          return;
+          setError("No URLs configured for this user")
+          return
         }
-        
+
         // Filter out empty URLs
-        const validUrls = user.urls.filter(url => url && url.trim() !== '');
-        
+        const validUrls = user.urls.filter((url) => url && url.trim() !== "")
+
         if (validUrls.length === 0) {
-          setError('No valid URLs configured for this user');
-          return;
+          setError("No valid URLs configured for this user")
+          return
         }
-        
+
         // Select random URL
-        const randomUrl = validUrls[Math.floor(Math.random() * validUrls.length)];
-        
+        const randomUrl = validUrls[Math.floor(Math.random() * validUrls.length)]
+
         // Redirect
-        window.location.href = randomUrl;
+        window.location.href = randomUrl
       } catch (err) {
-        console.error('Redirect error:', err);
-        setError(`Failed to process redirect: ${err instanceof Error ? err.message : String(err)}`);
+        console.error("Redirect error:", err)
+        setError(
+          `Failed to process redirect: ${
+            err instanceof Error ? err.message : String(err)
+          }`
+        )
       }
     }
 
     if (hash) {
-      redirect();
+      redirect()
     }
-  }, [hash]);
+  }, [hash])
 
   if (error) {
     return (
@@ -97,7 +103,7 @@ export default function HashPage() {
           <p className="text-gray-700">{error}</p>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -109,5 +115,5 @@ export default function HashPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }
