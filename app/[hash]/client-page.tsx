@@ -54,8 +54,11 @@ export default function HashPage() {
 
         const users: UserData[] = JSON.parse(decryptedData)
 
-        // Find user by hash
-        const user = users.find((u) => u.hash === hash)
+        // Decode the hash parameter in case it's URL-encoded
+        const decodedHash = decodeURIComponent(hash)
+
+        // Find user by hash - try both encoded and decoded versions
+        const user = users.find((u) => u.hash === hash || u.hash === decodedHash)
 
         if (!user) {
           setError("User not found")
